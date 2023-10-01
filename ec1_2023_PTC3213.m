@@ -1,8 +1,8 @@
 %%%% ///////////////////////////////////////////////////////////////////////////
-%%%%        PTC3213 - EC1 - 2023 - DIFERENÇAS FINITAS
+%%%%        PTC3213 - EC1 - 2023 - DIFEREN�AS FINITAS
 %%%%
 %%%%    NUSP1 Aluno A (Substitua pelos num. e nomes corretos em ordem alf.)
-%%%%    NUSP2 Aluno B  
+%%%%    NUSP2 Aluno B
 %%%%    NUSP3 Aluno C
 %%%%                           Complete os campos com ???????????????????????
 %%%%
@@ -10,39 +10,46 @@
 clear;
 clf;
 %%%
-%%%  A linha 15 (pkg install...) deve ser executada uma unica vez no 
+%%%  A linha 15 (pkg install...) deve ser executada uma unica vez no
 %%% GNU Octave e necessita de conexao aa internet. Pode tambem ser executada fora do programa.
 %%%
 warning ("off");
 %pkg install -local -forge  matgeom; %% descomentar para rodar a 1a vez, somente
-pkg load matgeom; % executar este comando apenas 1 vez, após abrir o Octave
+pkg load matgeom; % executar este comando apenas 1 vez, ap�s abrir o Octave
 warning ("on");
 clc;
+
+
 %%%  ======================================================================
 %%%   Dados de entrada
 %%%
-NUSP = ?????????????????????  ; % NUSP do 1o aluno (ordem alfab.)
+
+NUSP = 13730110;
 %
-a= ????????????????????????   ; # dimensões em cm
-b=  ???????????????????????   ;
-c=   ???????????????????????   ;
-d=   ???????????????????????   ;
-g=   ???????????????????????   ;
-h=(b-d)/2;
-epsr=   ???????????????????????   ;
-sigma=    ???????????????????????   ;  # S/m
-sigma_dual=   ???????????????????????   ; # S/m
+a = 10;
+b =  5;
+c = 3;
+d = 4;
+g = 2;
+h =(b-d)/2;
+epsr = 2;
+sigma = 2.5;  # S/m
+sigma_dual = 3; # S/m
 eps0=   ?????????????????????????????????????????????????????  ;  % F/m
-Vmin=  ?????????????????????????????????????????????????? ;     % Volts
-Vmax=   ?????????????????????????????????????????????????? ;   % Volts
+Vmin =  0;     % Volts
+Vmax=   100;   % Volts
+
+
 %%%
 %%%  ======================================================================
 %%%
 %%%            Definicao do dominio
-%%%% 
-%%%% A variavel dx abaixo e' a discretizacao utilizada. Valores diferentes 
-%%%% daqueles sugeridos abaixo nao funcionarao. Diminua o dx para gerar a 
-%%%% versao final a ser entregue. 
+%%%%
+
+
+%%%% A variavel dx abaixo e' a discretizacao utilizada. Valores diferentes
+%%%% daqueles sugeridos abaixo nao funcionarao. Diminua o dx para gerar a
+%%%% versao final a ser entregue.
 %dx=0.05; % Tempo de execucao MUITO longo!!
 %dx=0.1;   % Tempo de execucao longo!!
 %dx=0.25;  % recomendado para a versao final
@@ -70,6 +77,9 @@ xv2=verts2(:,1);
 yv2=verts2(:,2);
 [in1,on1] = inpolygon(x,y,xv1,yv1);
 [in2,on2] = inpolygon(x,y,xv2,yv2);
+
+
+
 %%%
 %%%    Atribui Condicoes de contorno
 %%%
@@ -83,15 +93,22 @@ Phi_new=zeros(size(x));
 Phi_new(iVmax)= Vmax;
 Phi_new(iFuro)= NaN;
 Phi_new(p)= start;
+
+
 %%% ========================================================================
 %%%
 %%% Contador de iteracoes
-iter=0;
+  iter=0;
+
+
+
 %%% Erro maximo entre Phi_new e Phi_prev
-erro=max(max(abs(Phi_new-Phi_prev)));
-%%%  
+  erro=max(max(abs(Phi_new-Phi_prev)));
+
+%%%
 %%%             Laco iterativo - Metodo das Diferencas Finitas
 %%%
+
 while(erro > 1e-4 && iter < 1e4)% Executa ate convergir ou atingir o maximo de iteracoes
     iter=iter+1; % Incrementa iteracao
 %%%   Atualiza o potencial dos nos internos pela media dos 4 vizinhos - Eq. Laplace - M.D.F.
@@ -110,6 +127,8 @@ niter1=iter;
 if (niter1 == 1e4 && erro > 1e-4)
 	disp([' Numero maximo de iteracoes atingido sem convergencia :', num2stg(niter1), '  iteracoes \? Erro: \n', num2str(erro), 'Os resultados podem nao ter significado!\n']);
 end
+
+
 %%%
 %%%
 %%% Problema Dual (Somente para tracado dos Quadrados Curvilineos!)
@@ -132,7 +151,7 @@ for k=1:size(iVmax,1);
             [ida,jda]=ind2sub(size(x), iVmax(k));
     end
  end
-  
+
 Dual_prev=zeros(size(x));
 Dual_new=Dual_prev;
 Dual_new(r)= -1;
@@ -151,13 +170,13 @@ erro2=max(max(abs(Dual_new-Dual_prev)));
 %
 %%%       Laco iterativo (Problema Dual) - MDF
 %
-while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de iteracoes    
+while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de iteracoes
     iter2=iter2+1; % Incrementa iteracao
 %%%   Atualiza o potencial das fronteiras
     Dual_new(1,:)=Dual_prev(2,:);
     Dual_new(Ny,:)=Dual_prev(Ny-1,:);
     Dual_new(:,1)=Dual_prev(:,2);
-    Dual_new(2:Ny-1,Nx)=Dual_prev(2:Ny-1,Nx-1);   
+    Dual_new(2:Ny-1,Nx)=Dual_prev(2:Ny-1,Nx-1);
     for k=2:size(xfe,1)-1
         [ie,je]=ind2sub(size(Dual_new), iVmax(xfe(k)));
         Dual_new(ie,je)=Dual_new(ie,je-1);
@@ -176,9 +195,9 @@ while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de
     end
     Dual_new(iyDual(iVmaxdual))=Vmax;
     Dual_new(iyDual(i0))=Vmin;
-%%%%     
+%%%%
 %%%% Atualiza o potencial dos nos internos pela media dos 4 vizinhos - Eq. Laplace - M.D.F.
-    for k=1:size(p2,1); 
+    for k=1:size(p2,1);
         [i,j]=ind2sub(size(x),p(p2(k)));
         Dual_new(i,j)=(Dual_new(i-1,j)+Dual_new(i+1,j)+Dual_new(i,j-1)+Dual_new(i,j+1))/4;
     end
@@ -225,7 +244,7 @@ Rdual=  ?????????????????????????????????????  ;
 %%%
 Dn=[Phi_new(2,1:Nx-1),Phi_new(1:Ny-1,Nx-1)',Phi_new(Ny-1,1:Nx-1),Phi_new(1:Ny-1,2)']*epsr*eps0/dx*100;
 %%
-%%   Densidade de carga mínima em nC/m^2
+%%   Densidade de carga m�nima em nC/m^2
 %%
 Rho_s_min=  ????????????????????????????????????  ;
 %%
@@ -234,7 +253,7 @@ Rho_s_min=  ????????????????????????????????????  ;
 nsnp=    ?????????????????????????????????????????????   ;
 ntubos=10/nsnp;  %% CORRIGIDO
 %%%%==========================================================================
-%%%%              IMPRESSAO DE RESULTADOS NO TERMINAL 
+%%%%              IMPRESSAO DE RESULTADOS NO TERMINAL
 %%%%                  ATENCAO para as unidades:
 %%%%          R e Rdual em ohms     Cap em pF    Rho_s  em nC/m^2
 %%%%
@@ -267,10 +286,10 @@ titulo=['Mapa de Quadrados Curvilineos (EC1 2021) - ', strusp, ' - ', date()];
 title(titulo);
 hold off
 %%%
-%%%      ARQUIVO DE SAIDA COM O MAPA DOS QUADRADOS CURVILINEOS 
-%%%(Grava na pasta exibida no Navegador de Arq. da interface gráfica do Octave)
+%%%      ARQUIVO DE SAIDA COM O MAPA DOS QUADRADOS CURVILINEOS
+%%%(Grava na pasta exibida no Navegador de Arq. da interface gr�fica do Octave)
 %%%
-arq=['EC1_2021_QC_',strusp,'.png'];  
+arq=['EC1_2021_QC_',strusp,'.png'];
 print(FIG,arq);
 %%%%   ========================================================================
 %%%%  FIM
