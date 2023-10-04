@@ -1,97 +1,96 @@
-%%%% ======================================================================
-%%%%        PTC3213 - EC1 - 2023 - DIFERENCAS FINITAS
-%%%%
-%%%%            13730110 Crislara Santos Santana
-%%%%            14541820 Matheus Marcusso Fontenla
-%%%%
-%%%%
-%%%% ======================================================================
-clear;
-clf;
+%%%====================================================================================
+%%%        PTC3213 - EC1 - 2023 - DIFERENCAS FINITAS
+%%%
+%%%            13730110 Crislara Santos Santana
+%%%            14541820 Matheus Marcusso Fontenla
+%%%
+%%%
+%%%====================================================================================
+  clear;
+  clf;
 
-warning ("off");
-warning ("on");
-clc;
+  warning ("off");
+  warning ("on");
+  clc;
 
-%%%%====================================================================================
+%%%====================================================================================
 %%%  				        Dados de entrada
-%%%%====================================================================================
+%%%====================================================================================
 
-NUSP=13730110;
-L=1;
-a = 10;
-b =  5;
-c = 3;
-d = 4;
-g = 2;
-h =(b-d)/2;
-epsr = 2;
-sigma = 2.5;  % S/m
-sigma_dual = 3; % S/m
-eps0= 8.85418E-18 ;  % F/m
-Vmin =  0;     % Volts
-Vmax=   100;   % Volts
+  NUSP=13730110;
+  L=1;
+  a = 10;
+  b =  5;
+  c = 3;
+  d = 4;
+  g = 2;
+  h =(b-d)/2;
+  epsr = 2;
+  sigma = 2.5;  % S/m
+  sigma_dual = 3; % S/m
+  eps0= 8.85418E-18 ;  % F/m
+  Vmin =  0;     % Volts
+  Vmax=   100;   % Volts
 
 
-%%%%====================================================================================
+%%%====================================================================================
 %%%                   Definicao do dominio
-%%%%====================================================================================
+%%%====================================================================================
+
+  dx=0.01;
+  start=start_Dual= 50;
+  iter=0;
+  dy=dx;
+  lx=a; %comprimento
+  ly=b; %altura
+  Nx=round(lx/dx)+1;    %num de colunas
+  Ny=round(ly/dx)+1;  %num de linhas
+  ring1= [0 0; lx 0; lx ly; 0 ly; 0 0];
+  ring2=[g h; g h+d; g+c h+d; g+c h; g h];
+  polyg={ring1,ring2};
+  verts=polygonVertices(polyg);   %função que retorna os vértices do polígono
+  xgv=((1:Nx)-1)*dx;  %Nós espaçados de dx
+  ygv=((1:Ny)-1)*dx;
+  [x,y]=meshgrid(xgv,ygv); %Função que retorna uma grade 2D
+  verts1=polygonVertices(ring1);
+  verts2=polygonVertices(ring2);
+  xv1=verts1(:,1);
+  yv1=verts1(:,2);
+  xv2=verts2(:,1);
+  yv2=verts2(:,2);
+  [in1,on1]=inpolygon(x,y,xv1,yv1); %Boleano que retorna True se o ponto pertence ao polígono ou seu interior.
+  [in2,on2]=inpolygon(x,y,xv2,yv2);
 
 
-dx=0.5;
-start=start_Dual= 50;
-iter=0;
-dy=dx;
-lx=a; %comprimento
-ly=b; %altura
-Nx=round(lx/dx)+1;    %num de colunas
-Ny=round(ly/dx)+1;  %num de linhas
-ring1= [0 0; lx 0; lx ly; 0 ly; 0 0];
-ring2=[g h; g h+d; g+c h+d; g+c h; g h];
-polyg={ring1,ring2};
-verts=polygonVertices(polyg);   %função que retorna os vértices do polígono
-xgv=((1:Nx)-1)*dx;  %Nós espaçados de dx
-ygv=((1:Ny)-1)*dx;
-[x,y]=meshgrid(xgv,ygv); %Função que retorna uma grade 2D
-verts1=polygonVertices(ring1);
-verts2=polygonVertices(ring2);
-xv1=verts1(:,1);
-yv1=verts1(:,2);
-xv2=verts2(:,1);
-yv2=verts2(:,2);
-[in1,on1]=inpolygon(x,y,xv1,yv1); %Boleano que retorna True se o ponto pertence ao polígono ou seu interior.
-[in2,on2]=inpolygon(x,y,xv2,yv2);
-
-
-%%%%====================================================================================
+%%%====================================================================================
 %%%                  Atribui Condicoes de contorno
-%%%%====================================================================================
+%%%====================================================================================
 
-r=find(in1&~in2|on2); % tudo
-p=find(in1&~on1&~in2); %so  nos internos
-q=find(on1|on2); %so fronteira
-iVmax=find(on2);
-iFuro=find(in2&!on2);
-Phi_prev=zeros(size(x));
-Phi_new=zeros(size(x));
-Phi_new(iVmax)= Vmax;
-Phi_new(iFuro)= NaN;
-Phi_new(p)= start;
+  r=find(in1&~in2|on2); % tudo
+  p=find(in1&~on1&~in2); %so  nos internos
+  q=find(on1|on2); %so fronteira
+  iVmax=find(on2);
+  iFuro=find(in2&!on2);
+  Phi_prev=zeros(size(x));
+  Phi_new=zeros(size(x));
+  Phi_new(iVmax)= Vmax;
+  Phi_new(iFuro)= NaN;
+  Phi_new(p)= start;
 
 
 
 %%% Contador de iteracoes
   iter=0;
 
-%%%%====================================================================================
+%%%====================================================================================
 %%%           Erro maximo entre Phi_new e Phi_prev
-%%%%====================================================================================
+%%%====================================================================================
 
   erro=max(max(abs(Phi_new-Phi_prev)));
 
-%%%%====================================================================================
+%%%====================================================================================
 %%%             Laco iterativo - Metodo das Diferencas Finitas
-%%%%====================================================================================
+%%%====================================================================================
 
 while(erro > 1e-4 && iter < 1e4)% Executa ate convergir ou atingir o maximo de iteracoes
     iter=iter+1; % Incrementa iteracao
@@ -109,17 +108,17 @@ while(erro > 1e-4 && iter < 1e4)% Executa ate convergir ou atingir o maximo de i
 end
 niter1=iter;
 if (niter1 == 1e4 && erro > 1e-4)
-	disp([' Numero maximo de iteracoes atingido sem convergencia :', num2stg(niter1), '  iteracoes \? Erro: \n', num2str(erro), 'Os resultados podem nao ter significado!\n']);
+%pkg install -local -forge  matgeom;	disp([' Numero maximo de iteracoes atingido sem convergencia :', num2stg(niter1), '  iteracoes \? Erro: \n', num2str(erro), 'Os resultados podem nao ter significado!\n']);
 end
 
-%%%%====================================================================================
+%%%====================================================================================
 %%%                               Problema Dual
-%%%%====================================================================================
+%%%====================================================================================
 
 
-%%%%====================================================================================
+%%%====================================================================================
 %%%                            Atribui Condicoes de Contorno
-%%%%====================================================================================
+%%%====================================================================================
 
   iyDual=find( (y(:,:) < ly/1.999) & (y(:,:) > ly/2.001) );
   iVmaxdual=find( (x(iyDual) > (-0.01)) & (x(iyDual) < (1.0001*g)));
@@ -155,15 +154,16 @@ end
 %%% Contador de iteracoes - dual
 
   iter2=0;
-%%%%====================================================================================
+
+%%%====================================================================================
 %%%         Erro maximo entre Phi_new e Phi_prev (Dual)
-%%%%====================================================================================
+%%%====================================================================================
 
   erro2=max(max(abs(Dual_new-Dual_prev)));
 
-%%%%====================================================================================
+%%%====================================================================================
 %%%       Laco iterativo (Problema Dual) - MDF
-%%%%====================================================================================
+%%%====================================================================================
 
 while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de iteracoes
     iter2=iter2+1; % Incrementa iteracao
@@ -213,7 +213,7 @@ while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de
     Dual_new(ida,jda)=(Dual_new(ida-1,jda)+Dual_new(ida+1,jda)+Dual_new(ida,jda-1)+Dual_new(ida,jda+1))/4;
 
 %%%====================================================================================
-%%% Calcula maximo erro entre Phi_atual e Phi_prev de todo o dominio
+%%%         Calcula maximo erro entre Phi_atual e Phi_prev de todo o dominio
 %%%====================================================================================
     erro2=max(max(abs(Dual_new-Dual_prev)));
     eps2(iter2)=erro2;
@@ -232,32 +232,34 @@ end
 %%%               		DADOS DE SAIDA
 %%%====================================================================================
 
-Somat=sum(Phi_new(2,:))+sum(Phi_new(Ny-1,:))+sum(Phi_new(:,2))+sum(Phi_new(:,Nx-1));
+  Somat=sum(Phi_new(2,:))+sum(Phi_new(Ny-1,:))+sum(Phi_new(:,2))+sum(Phi_new(:,Nx-1));
 
 %%%====================================================================================
 %%%               		  CORRENTE TOTAL (A)
 %%%====================================================================================
 
-	I=  sigma*Somat*L*dx;
+	I=  sigma*Somat*L;
 
 
 %%%====================================================================================
 %%%                  		 RESISTENCIA em ohms
 %%%====================================================================================
+
 	R=  Somat/I;
 
 %%%====================================================================================
 %%%                  		  CAPACITANCIA em pF
 %%%====================================================================================
 
-	Cap=  ((eps0*epsr) / (sigma*R))/(10^-12);
+	%Cap=  ((eps0*epsr) / (sigma*R))/(10^-12);
+  Cap = eps0*epsr*Somat
 
 
 %%%====================================================================================
 %%%               		 RESISTENCIA DUAL em ohms
 %%%====================================================================================
 
- 	Rdual=  1/(R*sigma*sigma_dual*L) ;
+ 	Rdual=  1/(R*sigma*sigma_dual*L^2);
 
 %%%====================================================================================
 %%%                   		  VETOR DESLOCAMENTO
@@ -269,55 +271,56 @@ Somat=sum(Phi_new(2,:))+sum(Phi_new(Ny-1,:))+sum(Phi_new(:,2))+sum(Phi_new(:,Nx-
 %%%        Densidade de carga minima em nC/m^2
 %%%====================================================================================
 
-	Rho_s_min=  Dn/(a-(g+c));
+	Rho_s_min= min(abs(Dn))
 
 %%%====================================================================================
 %%%                      Numero de tubos de corrente
 %%%====================================================================================
-	nsnp = Ny*Nx
+	nsnp = (sigma*R*L);
  	ntubos=10/nsnp;  %% CORRIGIDO
 
-%%%%====================================================================================
-%%%%              IMPRESSAO DE RESULTADOS NO TERMINAL
-%%%%          R e Rdual em ohms     Cap em pF    Rho_s  em nC/m^2
-%%%%====================================================================================
+%%%====================================================================================
+%%%              IMPRESSAO DE RESULTADOS NO TERMINAL
+%%%          R e Rdual em ohms     Cap em pF    Rho_s  em nC/m^2
+%%%====================================================================================
 
-fprintf('\n\n nUSP: %d\n R = %g ohms\n C = %g pF\n Rho_s_min = %g nC/m^2\n Rdual = %g ohms\n Tubos: %g\n', NUSP, R, Cap, Rho_s_min,Rdual,floor(ntubos) );
-FIG=figure (1);
+  fprintf('\n\n nUSP: %d\n R = %g ohms\n C = %g pF\n Rho_s_min = %g nC/m^2\n Rdual = %g ohms\n Tubos: %g\n', NUSP, R, Cap, Rho_s_min,Rdual,floor(ntubos) );
+  FIG=figure (1);
 
 
-%%%%====================================================================================
+%%%====================================================================================
 %%%           TRACADO DE EQUIPOTENCIAIS
-%%%%====================================================================================
-V=0:10:Vmax;
-colormap cool;
-[C,H]=contour(x,y,Phi_new,Vmax);
-clabel(C,V);
-axis('equal');
-hold on
+%%%====================================================================================
 
-%%%%====================================================================================
+  V=0:10:Vmax;
+  colormap cool;
+  [C,H]=contour(x,y,Phi_new,Vmax);
+  clabel(C,V);
+  axis('equal');
+  hold on
+
+%%%====================================================================================
 %%%   EQUIPOTENCIAIS PROBLEMA DUAL (para tracado dos quadrados curvilineos)
-%%%%====================================================================================
+%%%====================================================================================
 
-deltaV= Dual_new*dx;
-V=0:deltaV:Vmax;
-colormap jet;
-contour(x,y,Dual_new,Vmax);
-axis('equal');
-strusp=sprintf('%d',NUSP);
-titulo=['Mapa de Quadrados Curvilineos (EC1 2021) - ', strusp, ' - ', date()];
-title(titulo);
-hold off
+  deltaV= 10;
+  V=0:deltaV:Vmax;
+  colormap jet;
+  contour(x,y,Dual_new,Vmax);
+  axis('equal');
+  strusp=sprintf('%d',NUSP);
+  titulo=['Mapa de Quadrados Curvilineos (EC1 2021) - ', strusp, ' - ', date()];
+  title(titulo);
+  hold off
 
-%%%%====================================================================================
+%%%====================================================================================
 %%%      ARQUIVO DE SAIDA COM O MAPA DOS QUADRADOS CURVILINEOS
 %%% (Grava na pasta exibida no Navegador de Arq. da interface grafica do Octave)
-%%%%====================================================================================
-arq=['EC1_2021_QC_',strusp,'.png'];
-print(FIG,arq);
+%%%====================================================================================
 
+  arq=['EC1_2021_QC_',strusp,'.png'];
+  print(FIG,arq);
 
-%%%%====================================================================================
-%%%%                               FIM
-%%%%====================================================================================
+%%%====================================================================================
+%%%                               FIM
+%%%====================================================================================
