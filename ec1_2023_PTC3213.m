@@ -1,11 +1,11 @@
 %%%====================================================================================
-%%%        PTC3213 - EC1 - 2023 - DIFERENCAS FINITAS
-%%%
+%%%       
+%%%         PTC3213 - EC1 - 2023 - DIFERENCAS FINITAS
 %%%            13730110 Crislara Santos Santana
 %%%            14541820 Matheus Marcusso Fontenla
 %%%
-%%%
 %%%====================================================================================
+  
   clear;
   clf;
 
@@ -22,7 +22,7 @@
   a = 10;
   b =  5;
   c = 3;
-  d = 4;
+  d = b-4;
   g = 2;
   h =(b-d)/2;
   epsr = 2;
@@ -37,7 +37,7 @@
 %%%                   Definicao do dominio
 %%%====================================================================================
 
-  dx=0.01;
+  dx=0.25;
   start=start_Dual= 50;
   iter=0;
   dy=dx;
@@ -108,7 +108,7 @@ while(erro > 1e-4 && iter < 1e4)% Executa ate convergir ou atingir o maximo de i
 end
 niter1=iter;
 if (niter1 == 1e4 && erro > 1e-4)
-%pkg install -local -forge  matgeom;	disp([' Numero maximo de iteracoes atingido sem convergencia :', num2stg(niter1), '  iteracoes \? Erro: \n', num2str(erro), 'Os resultados podem nao ter significado!\n']);
+disp([' Numero maximo de iteracoes atingido sem convergencia :', num2stg(niter1), '  iteracoes \? Erro: \n', num2str(erro), 'Os resultados podem nao ter significado!\n']);
 end
 
 %%%====================================================================================
@@ -251,9 +251,7 @@ end
 %%%                  		  CAPACITANCIA em pF
 %%%====================================================================================
 
-	%Cap=  ((eps0*epsr) / (sigma*R))/(10^-12);
-  Cap = eps0*epsr*Somat
-
+	Cap=  ((eps0*epsr) / (sigma*R))/(10^-12);
 
 %%%====================================================================================
 %%%               		 RESISTENCIA DUAL em ohms
@@ -271,7 +269,7 @@ end
 %%%        Densidade de carga minima em nC/m^2
 %%%====================================================================================
 
-	Rho_s_min= min(abs(Dn))
+	Rho_s_min= min(min(abs(Dn)));
 
 %%%====================================================================================
 %%%                      Numero de tubos de corrente
